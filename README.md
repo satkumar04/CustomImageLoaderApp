@@ -20,3 +20,8 @@ imageLoader.displayImage(
             holder.imageView,
             R.drawable.placeholder
         ) { errMessage -> onError(errMessage) }
+
+
+Clone the app using following url :
+
+https://github.com/satkumar04/CustomImageLoaderApp.git
