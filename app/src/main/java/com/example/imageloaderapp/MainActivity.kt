@@ -2,8 +2,11 @@ package com.example.imageloaderapp
 
 import android.app.Activity
 import android.content.Intent
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,30 +19,30 @@ import com.unsplash.pickerandroid.photopicker.presentation.UnsplashPickerActivit
 
 class MainActivity : AppCompatActivity() {
     lateinit var imageRV: RecyclerView
+    lateinit var fetchButton: Button
     lateinit var imageAdapter: ImageAdapter
-    lateinit var imageList: ArrayList<ImageData>
-     val CACHE_SIZE = 1024*1024*1024
-    private lateinit var imageLoader:MyImageLoader
+    val CACHE_SIZE = 1024 * 1024 * 1024
+    private lateinit var imageLoader: MyImageLoader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         imageRV = findViewById(R.id.idGVImages)
+        fetchButton = findViewById(R.id.fetchButton)
         imageRV.setHasFixedSize(true)
         imageRV.itemAnimator = null
         imageRV.layoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
-        imageLoader = MyImageLoader.getInstance(this , CACHE_SIZE)
+        imageLoader = MyImageLoader.getInstance(this, CACHE_SIZE)
         val layoutManager = GridLayoutManager(this, 2)
 
         imageRV.layoutManager = layoutManager
         imageAdapter = ImageAdapter(this)
         imageRV.adapter = imageAdapter
-        startActivityForResult(
-            UnsplashPickerActivity.getStartingIntent(
-                this,
-                true
-            ), REQUEST_CODE
-        )
+        fetchImages()
+
+        fetchButton.setOnClickListener {
+            fetchImages()
+        }
 
     }
 
@@ -48,14 +51,32 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
             // getting the photos
-            val photos: ArrayList<UnsplashPhoto>? = data?.getParcelableArrayListExtra(UnsplashPickerActivity.EXTRA_PHOTOS)
+            val photos: ArrayList<UnsplashPhoto>? =
+                data?.getParcelableArrayListExtra(UnsplashPickerActivity.EXTRA_PHOTOS)
             // showing the preview
-            imageAdapter.setListOfPhotos(photos)
+            if (photos!!.size > 0) {
+                imageAdapter.setListOfPhotos(photos)
+                imageRV.visibility = View.VISIBLE
+                fetchButton.visibility = View.GONE
+            }
+            else{
+                imageRV.visibility = View.GONE
+                fetchButton.visibility = View.VISIBLE
+            }
         }
     }
 
     companion object {
         private const val REQUEST_CODE = 123
+    }
+
+    private fun fetchImages() {
+        startActivityForResult(
+            UnsplashPickerActivity.getStartingIntent(
+                this,
+                true
+            ), REQUEST_CODE
+        )
     }
 
     override fun onDestroy() {
