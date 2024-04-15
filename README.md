@@ -10,7 +10,8 @@ In the sample application, Image url response data is getting from unsplash api 
 
 How to use MyImageLoader library :
  * Add it as a dependency in the project.
-      implementation(project(":myImageLoader"))
+
+    implementation(project(":myImageLoader"))
 
 
 MyImageLoader imageLoader = MyImageLoader.getInstance(this, CACHE_SIZE)
